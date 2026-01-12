@@ -1,102 +1,79 @@
-import { useState } from 'react'
-import { Field } from './components/Field/Field.jsx'
-import { Information } from './components/InformationPlayers/Information.jsx'
-import { ButtonReset } from './components/ButtonReset/ButtonReset.jsx'
-import { CounterWin } from './components/CounterWin/CounterWin.jsx'
-import './App.css'
+import { useState } from 'react';
+import { Field } from './components/Field/Field.jsx';
+import { Information } from './components/InformationPlayers/Information.jsx';
+import { ButtonReset } from './components/ButtonReset/ButtonReset.jsx';
+import { CounterWin } from './components/CounterWin/CounterWin.jsx';
+import { useSelector, useDispatch } from 'react-redux';
+import './App.css';
 
 export function Game() {
-  const [currentPlayer, setCurrentPlayer] = useState('X') // Ход игрока 
-  const [isGameEnded, setIsGameEnded] = useState(false) // Флаг окончания игры
-  const [isDraw, setIsDraw] = useState(false) // Флаг ничьей
-  const [countWin, setCountWin] = useState({
-    X: 0,
-    O: 0,
-  })
-  const [field, setField] = useState([
-    '', '', '',
-    '', '', '',
-    '', '', '',
-  ])
+  const field = useSelector((state) => state.field);
+  console.log(field);
 
-  const WIN_PATTERNS = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Варианты побед по горизонтали
-    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Варианты побед по вертикали
-    [0, 4, 8], [2, 4, 6] // Варианты побед по диагонали
-  ];
+  const counterWin = useSelector((state) => state.countWin);
+  console.log(counterWin);
+
+  const winPatterns = useSelector((state) => state.WIN_PATTERNS);
+  console.log(winPatterns);
+
+  const currentPlayer = useSelector((state) => state.currentPlayer);
+
+  const isGameEnded = useSelector((state) => state.isGameEnded);
+
+  const isDraw = useSelector((state) => state.isDraw);
+
+  const dispatch = useDispatch();
 
   const checkWinner = (field) => {
-    const winnerPartner = WIN_PATTERNS.find(([a, b, c]) => 
-    field[a] !== '' &&
-    field[a] === field[b] &&
-    field[a] === field[c]
-  )
+    const winnerPartner = winPatterns.find(
+      ([a, b, c]) => field[a] !== '' && field[a] === field[b] && field[a] === field[c]
+    );
 
-    if(winnerPartner) {
-      setIsGameEnded(true)
-      return field[winnerPartner[0]]
-      
+    if (winnerPartner) {
+      dispatch({ type: 'CHECK_WINNER', payload: field[winnerPartner[0]] });
+      return field[winnerPartner[0]];
     }
-    return null
-  }
+    return null;
+  };
 
   const checkDraw = (field) => {
-    return field.every(cell => cell !== '')
-  }
+    return field.every((cell) => cell !== '');
+  };
 
   const handleResetGame = () => {
-    setField([
-      '', '', '',
-      '', '', '',
-      '', '', '',
-    ])
-    setIsGameEnded(false)
-    setIsDraw(false)
-    setCurrentPlayer('X')
-  }
+    dispatch({ type: 'RESET_GAME' });
+  };
 
   const handleClick = (index) => {
-    console.log(index)
-    if(field[index] === '' && !isGameEnded) {
-      const newField = [...field]
-      newField[index] = currentPlayer
-      setField(newField)
-      
-      const winner = checkWinner(newField)
-      if(winner) {
-        setIsGameEnded(true)
-        setCountWin(prev => ({
-          ...prev,
-          [winner]: prev[winner] + 1
-        }))
-        return
+    console.log(index);
+    if (field[index] === '' && !isGameEnded) {
+      const newField = [...field];
+      newField[index] = currentPlayer;
+      dispatch({ type: 'UPDATE_FILED', payload: newField });
+
+      const winner = checkWinner(newField);
+      if (winner) {
+        dispatch({ type: 'CHECK_WINNER', payload: winner });
+        dispatch({ type: 'COUNT_WIN', payload: winner });
+        return;
       }
-      
-      if(checkDraw(newField)) {
-        setIsDraw(true)
-        setIsGameEnded(true)
-        return
+
+      if (checkDraw(newField)) {
+        dispatch({ type: 'CHECK_DRAW' });
+        dispatch({ type: 'CHECK_WINNER' });
+        return;
       }
-      
-      setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X')
+
+      dispatch({ type: 'UPDATE_CURRENT_PLAYER', payload: currentPlayer === 'X' ? 'O' : 'X' });
     }
-  }
-  console.log(countWin)
- 
+  };
+
   return (
     <>
-      <CounterWin countWin={countWin}/>
-      <Field field={field} handleClick={handleClick}/>
-      <Information isDraw={isDraw} isGameEnded={isGameEnded} currentPlayer={currentPlayer}/>
-      {(isGameEnded || isDraw) && (<ButtonReset resetClick={handleResetGame}/>)}
+      <CounterWin />
+      <Field field={field} handleClick={handleClick} />
+      <Information />
+      {(isGameEnded || isDraw) && <ButtonReset resetClick={handleResetGame} />}
     </>
-  )
+  );
 }
-
-
-
-
-
-
-
-

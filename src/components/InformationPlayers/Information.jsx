@@ -1,9 +1,9 @@
-import { InformationLoyaut } from './InformationLoyaut.jsx'
+import { InformationLoyaut } from './InformationLoyaut.jsx';
 
-export const Information = ({isDraw, isGameEnded, currentPlayer}) => {
+export const Information = () => {
   return (
     <>
-      <InformationLoyaut isDraw={isDraw} isGameEnded={isGameEnded} currentPlayer={currentPlayer}/>
+      <InformationLoyaut />
     </>
-  )
-}
+  );
+};

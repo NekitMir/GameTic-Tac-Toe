@@ -1,8 +1,6 @@
-import { FieldLayout } from './FieldLayout.jsx'
+import { FieldLayout } from './FieldLayout.jsx';
 
-
-export const Field = ({field, handleClick, checkWin}) => {
-  return (
-    <FieldLayout field={field} handleClick={handleClick}/>
-  )
-}
+export const Field = ({ field, handleClick, checkWin }) => {
+  
+  return <FieldLayout field={field} handleClick={handleClick} />;
+};
